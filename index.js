@@ -107,7 +107,19 @@ const typeDefs = gql `
      bookCount: Int
  } 
 
+type Mutation {
+    addBook(
+        title: String!
+        published: Int!
+        author: String!
+        genres: [String!]
+    ): Book
+    editAuthor(
+        name: String!
+        setBornTo: Int!
+    ): Author
 
+}
 `
 
 const resolvers = {
@@ -129,6 +141,27 @@ const resolvers = {
     },
     Author: {
         bookCount: (root) => books.filter(book => book.author === root.name).length
+    },
+    Mutation: {
+        addBook: (root, args) => {
+            const newBook = {... args}
+            books = books.concat(newBook)
+            if (!authors.find(author => author.name.toLowerCase() === args.author.toLowerCase())) {
+                const newAuthor = {name: args.author, born: null}
+                authors = authors.concat(newAuthor)
+            }
+            return newBook
+        },
+        editAuthor: (root, args) => {
+            const author = authors.find(author => author.name.toLowerCase() === args.name.toLowerCase())
+            if (author) {
+            const editedAuthor = {...author, born: args.setBornTo}
+            authors = authors.map(author => author.name.toLowerCase() != args.name.toLowerCase() ? author : editedAuthor)
+            return editedAuthor
+            } else {
+                return null
+            }
+        }
     }
 }
 
