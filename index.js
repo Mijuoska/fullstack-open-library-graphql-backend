@@ -127,15 +127,21 @@ const resolvers = {
         bookCount: () => books.length,
         authorCount: () => authors.length,
         allBooks: (root, args) => {
-              let returnedBooks = books
-          if (!args.author || !args.genre) {
-             return books
-          } if (args.author) {
-              returnedBooks = returnedBooks.filter(book => book.author === args.author)
-          } if (args.genre) {
-              returnedBooks = returnedBooks.filter(book => book.genres.indexOf(args.genre) > -1)
-          return returnedBooks
-        }
+            // filterBy = (book) => {
+            //     console.log(args.author)
+            //     let retVal = ''
+            //     retVal = args.author ? book.author === args.author : book
+            //     console.log(retVal ? 'Author found' : 'Author not found')
+            //     retVal = args.genre ? book.genres.indexOf(args.genre) !== -1 : book
+            //     return retVal
+            // }
+            return books.filter(book => {
+                let retval = ''
+                retval = args.author ? book.author === args.author : book
+                retval = args.genre ? book.genres.indexOf(args.genre.toLowerCase()) !== -1 : retval
+                return retval
+            })
+
     },
         allAuthors: () => authors
     },
