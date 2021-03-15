@@ -1,6 +1,7 @@
 const {
     ApolloServer,
-    gql
+    gql,
+    UserInputError
 } = require('apollo-server')
 
 
@@ -139,12 +140,7 @@ const resolvers = {
         authorCount: () => Author.collection.countDocuments(),
         allBooks: (root, args) => {
             return Book.find({}).populate('author', 'name born')
-            // return books.filter(book => {
-            //     let retval = ''
-            //     retval = args.author ? book.author === args.author : book
-            //     retval = args.genre ? book.genres.indexOf(args.genre.toLowerCase()) !== -1 : retval
-            //     return retval
-            // })
+        
 
     },
         allAuthors: () => Author.find({})
@@ -183,7 +179,9 @@ const resolvers = {
                await book.save()
                
             } catch (error) {
-                console.log(error)
+                throw new UserInputError(error.message, {
+                    invalidArgs: args
+                });
             }
 
              return book
