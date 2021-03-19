@@ -180,7 +180,6 @@ const resolvers = {
     Author: {
         bookCount: async (root) => {    
             const booksByAuthor = await Book.find({ author: root._id })
-            console.log(booksByAuthor.length)
             return booksByAuthor.length
             
         }
@@ -213,7 +212,7 @@ const resolvers = {
                 published: args.published,
                 genres: args.genres,
                 author: author._id
-            }).populate('author', 'name')
+            })
          
             try {
                await book.save()
@@ -224,7 +223,9 @@ const resolvers = {
                 });
             }
 
-             return book
+
+
+             return await book.populate('author', 'name').execPopulate()
         },
         editAuthor: async (root, args, context) => {
             if (!context.currentUser) {
@@ -277,7 +278,7 @@ const server = new ApolloServer({
     context: async ( { req }) =>  {
         const auth = req ? req.headers.authorization : null
         if (auth && auth.toLowerCase().startsWith('bearer ')) {
-            const decodedToken = jtw.verify(auth.substring(7), JWT_SECRET)
+            const decodedToken = jwt.verify(auth.substring(7), JWT_SECRET)
             
             const currentUser = await User.findById(decodedToken.id)
 
