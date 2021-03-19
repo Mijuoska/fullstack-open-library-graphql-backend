@@ -110,7 +110,7 @@ const resolvers = {
             args.genre ? query.genres = args.genre : query
 
 
-            return await Book.find(query).populate('author', 'name born')
+            return await Book.find(query).populate('author', 'name born bookCount')
         
 
     },
@@ -121,13 +121,7 @@ const resolvers = {
          },
     },
 
-    Author: {
-        bookCount: async (root) => {    
-            const booksByAuthor = await Book.find({ author: root._id })
-            return booksByAuthor.length
-            
-        }
-    },
+
     Mutation: {
         addBook: async (root, args, context) => {
             if (!context.currentUser) {
@@ -139,7 +133,8 @@ const resolvers = {
               if (!foundAuthor) {
                   let newAuthor = new Author({
                       name: args.author,
-                      born: null
+                      born: null,
+                      bookCount: 1
                   })
                   try {
                     author = await newAuthor.save()
@@ -147,7 +142,9 @@ const resolvers = {
                       console.log(error)
                   }
               } else {
+                  foundAuthor.bookCount += 1;
                   author = foundAuthor
+                  await author.save()
               }
         
 
